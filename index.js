@@ -19,11 +19,22 @@ app.use(bodyParser.json());
 //create
 app.post("/registerc", async (req, res) => {
   try {
-    const { email, secret, address, fname, lname, phone } = req.body;
+    const {
+      email,
+      secret,
+      address,
+      fname,
+      lname,
+      phone,
+      businessName,
+      role
+    } = req.body;
     const newUser = await pool.query(
-      "INSERT INTO user (email, secret, address, fname, lname, phone, role) VALUES($1, $2, $3, $4, $5, $6, 'customer')",
-      [email, secret, address, fname, lname, phone]
+      "INSERT INTO public.user (email, secret, address, fname, lname, phone, business_name, role) VALUES($1, $2, $3, $4, $5, $6, $7, $8)",
+      [email, secret, address, fname, lname, phone, businessName, role]
     );
+    console.log(newUser);
+    res.json(newUser.rows[0]);
   } catch (err) {
     console.error(err);
   }
