@@ -1,7 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const jwt = require("jsonwebtoken");
-const expressJwt = require("express-jwt");
 const fs = require("fs");
 
 const app = express();
@@ -12,18 +11,22 @@ const isAuth = require("./util/Auth");
 //middleware
 app.use(cors());
 app.use(express.json());
-const jwtMW = expressJwt({
-  secret: "keyboard cat 4 ever"
-});
 app.use(bodyParser.json());
 
 //ROUTES//
-
 //USERS
 
 //create
-app.get("/register", (req, res) => {
-  res.json({ message: "registering..." });
+app.post("/registerc", async (req, res) => {
+  try {
+    const { email, secret, address, fname, lname, phone } = req.body;
+    const newUser = await pool.query(
+      "INSERT INTO user (email, secret, address, fname, lname, phone, role) VALUES($1, $2, $3, $4, $5, $6, 'customer')",
+      [email, secret, address, fname, lname, phone]
+    );
+  } catch (err) {
+    console.error(err);
+  }
 });
 
 app.get("/login", isAuth, (req, res) => {
