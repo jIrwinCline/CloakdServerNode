@@ -25,7 +25,7 @@ exports.registerUser = async (req, res) => {
       "INSERT INTO public.user (email, secret, address, fname, lname, phone, business_name, role) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, email",
       [email, secret, address, fname, lname, phone, businessName, role]
     );
-    res.cookie("userData", newUser.rows[0]);
+    req.session.userData = newUser.rows[0];
     res.json({ message: `New user with id: ${newUser.rows[0].id} created` });
   } catch (err) {
     console.error(err);
@@ -81,7 +81,7 @@ exports.deleteUser = async (req, res) => {
   res.json({ message: "User Deleted" });
 };
 exports.getCurrentUser = async (req, res) => {
-  let { id } = req.cookies.userData;
+  let { id } = req.session.userData;
   console.log("ID: ", id);
   const currentUser = await pool.query(
     "SELECT * FROM public.user WHERE id = $1",

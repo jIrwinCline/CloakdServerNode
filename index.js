@@ -2,7 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
-
+const session = require("express-session");
 const app = express();
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
@@ -14,6 +14,13 @@ app.use(cors());
 app.use(cookieParser());
 app.use(express.json());
 app.use(bodyParser.json());
+app.use(
+  session({
+    secret: "secret-key",
+    resave: false,
+    saveUninitialized: false
+  })
+);
 //Function Imports
 const {
   registerUser,
