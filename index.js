@@ -40,6 +40,15 @@ app.post("/registerc", async (req, res) => {
   }
 });
 
+app.get("/users", async (req, res) => {
+  try {
+    const users = await pool.query("SELECT * FROM public.user");
+    res.json(users.rows);
+  } catch (error) {
+    console.error(error);
+  }
+});
+
 app.get("/login", isAuth, (req, res) => {
   res.json({ message: "congrats, you logged in" });
 });
