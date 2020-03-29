@@ -23,3 +23,7 @@ exports.login = async (req, res) => {
     console.error(err);
   }
 };
+exports.logout = (req, res) => {
+  req.session.destroy();
+  res.send("user logout successfully");
+};

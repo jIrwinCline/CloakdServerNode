@@ -39,15 +39,12 @@ const privateKey = fs.readFileSync("./private.pem", "utf8");
 /**READ*/ app.get("/users/:id", getUser);
 /**UPDATE*/ app.put("/users/:id", updateUser);
 /**DELETE*/ app.delete("/users/:id", deleteUser);
+/**READ*/ app.get("/currentuser", isAuth, getCurrentUser);
 
 /**SESSIONS */
 /**CREATE*/ app.post("/login", login);
-/**READ*/ app.get("/currentuser", isAuth, getCurrentUser);
+/**DELETE*/ app.get("/logout", logout);
 
-app.get("/logout", (req, res) => {
-  req.session.destroy();
-  res.send("user logout successfully");
-});
 //test
 app.get("/test", (req, res) => {
   let userDetails = req.session;
