@@ -82,7 +82,6 @@ exports.deleteUser = async (req, res) => {
 };
 exports.getCurrentUser = async (req, res) => {
   let { id } = req.session.userData;
-  console.log("ID: ", id);
   const currentUser = await pool.query(
     "SELECT * FROM public.user WHERE id = $1",
     [id]

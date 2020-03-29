@@ -30,33 +30,32 @@ const {
   deleteUser,
   getCurrentUser
 } = require("./handlers/user");
+const { login } = require("./handlers/session");
 //ROUTES//
 const privateKey = fs.readFileSync("./private.pem", "utf8");
-
+/**USERS */
 /**CREATE*/ app.post("/register", registerUser);
 /**READ*/ app.get("/users", getAllUsers);
 /**READ*/ app.get("/users/:id", getUser);
 /**UPDATE*/ app.put("/users/:id", updateUser);
 /**DELETE*/ app.delete("/users/:id", deleteUser);
 
-// decode
-app.get("/currentuser", isAuth, getCurrentUser);
-//login?
-app.get("/login", isAuth, (req, res) => {
-  res.json({ message: "congrats, you logged in" });
-});
-app.get("/test", (req, res) => {
-  let userDetails = req.cookies;
-  res.send(userDetails);
-});
+/**SESSIONS */
+/**CREATE*/ app.post("/login", login);
+/**READ*/ app.get("/currentuser", isAuth, getCurrentUser);
+
 app.get("/logout", (req, res) => {
-  //it will clear the userData cookie
-  res.clearCookie("userData");
+  req.session.destroy();
   res.send("user logout successfully");
+});
+//test
+app.get("/test", (req, res) => {
+  let userDetails = req.session;
+  res.send(userDetails);
 });
 //get auth token
 app.get("/authenticate", (req, res) => {
-  let userData = req.cookies;
+  let userData = req.session.userData;
   let privateKey = fs.readFileSync("./private.pem", "utf8");
   let token = jwt.sign(userData, privateKey, { algorithm: "HS256" });
   res.send({ authorization: token });
