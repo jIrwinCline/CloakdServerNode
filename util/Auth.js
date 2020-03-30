@@ -20,7 +20,11 @@ const jwtAuth = (req, res, next) => {
 const roleAuth = role => {
   return (req, res, next) => {
     if (!req.session.userData) res.json({ error: "Not Signed in" });
-    if (req.session.userData.role === role) next();
+    if (
+      req.session.userData.role === role ||
+      req.session.userData.role === "admin"
+    )
+      next();
     else res.json({ error: "Not Authorized by Role" });
   };
 };

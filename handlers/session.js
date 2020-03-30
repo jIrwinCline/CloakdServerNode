@@ -1,7 +1,7 @@
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const pool = require("../db");
-const { sha512, saltHashPassword } = require("../util/Salt");
+const { sha512 } = require("../util/Salt");
 
 exports.login = async (req, res) => {
   try {

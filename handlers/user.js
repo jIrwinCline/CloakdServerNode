@@ -1,4 +1,5 @@
 // const jwt = require("jsonwebtoken");
+const { saltHashPassword } = require("../util/Salt");
 
 const pool = require("../db");
 exports.registerUser = async (req, res) => {
