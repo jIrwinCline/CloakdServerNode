@@ -30,8 +30,13 @@ const sha512 = (password, salt) => {
   };
 };
 
-exports.saltHashPassword = userpassword => {
+const saltHashPassword = userpassword => {
   var salt = genRandomString(16); /** Gives us salt of length 16 */
   var passwordData = sha512(userpassword, salt);
   return passwordData;
+};
+
+module.exports = {
+  saltHashPassword,
+  sha512
 };

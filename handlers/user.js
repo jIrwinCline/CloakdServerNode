@@ -8,7 +8,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const pool = require("../db");
 const isAuth = require("../util/Auth");
-const { sha512, saltHashPassword } = require("../util/Salt");
+const { saltHashPassword } = require("../util/Salt");
 
 exports.registerUser = async (req, res) => {
   try {
