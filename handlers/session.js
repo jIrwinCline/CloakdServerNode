@@ -1,13 +1,7 @@
 const express = require("express");
-const bodyParser = require("body-parser");
-const jwt = require("jsonwebtoken");
-const fs = require("fs");
 const session = require("express-session");
-const app = express();
-const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const pool = require("../db");
-const isAuth = require("../util/Auth");
 const { sha512 } = require("../util/Salt");
 
 exports.login = async (req, res) => {
