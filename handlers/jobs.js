@@ -39,7 +39,8 @@ exports.createJob = async (req, res) => {
 exports.getAllJobs = async (req, res) => {
   try {
     const jobs = await pool.query("SELECT * FROM public.job");
-    res.json(jobs.rows);
+    if (jobs.rows[0]) res.json(jobs.rows);
+    else res.json({ message: "Sorry, no jobs" });
   } catch (err) {
     console.log(err);
   }
@@ -54,5 +55,17 @@ exports.getJob = async (req, res) => {
     res.json(job.rows[0]);
   } catch (error) {
     console.log(error);
+  }
+};
+
+exports.deleteJob = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deleteJob = await pool.query("DELETE FROM public.job WHERE id = $1", [
+      id
+    ]);
+    res.json({ message: "Job Deleted" });
+  } catch (err) {
+    console.log(err);
   }
 };

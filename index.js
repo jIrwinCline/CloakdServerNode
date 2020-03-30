@@ -30,7 +30,7 @@ const {
   registerUser
 } = require("./handlers/user");
 const { getCurrentUser, login, logout } = require("./handlers/session");
-const { createJob, getAllJobs, getJob } = require("./handlers/jobs");
+const { createJob, getAllJobs, getJob, deleteJob } = require("./handlers/jobs");
 //ROUTES//
 const privateKey = fs.readFileSync("./private.pem", "utf8");
 /**USERS */
@@ -49,6 +49,7 @@ const privateKey = fs.readFileSync("./private.pem", "utf8");
 /**CREATE */ app.post("/jobs", roleAuth(["business"]), createJob);
 /**READ */ app.get("/jobs", getAllJobs);
 /**READ */ app.get("/jobs/:id", getJob);
+/**DELETE */ app.delete("/jobs/:id", deleteJob);
 
 //test
 app.get("/test", (req, res) => {
@@ -61,7 +62,7 @@ app.get("/admin", roleAuth(["admin"]), (req, res) => {
   res.send(userDetails.role);
 });
 //test
-app.get("/customer", roleAuth(["none"]), (req, res) => {
+app.get("/customer", roleAuth(["customer"]), (req, res) => {
   let userDetails = req.session.userData;
   res.send(userDetails.role);
 });
