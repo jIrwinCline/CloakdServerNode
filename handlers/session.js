@@ -24,6 +24,14 @@ exports.login = async (req, res) => {
   }
 };
 exports.logout = (req, res) => {
-  req.session.destroy();
-  res.send("user logout successfully");
+  try {
+    if (req.session.userData) {
+      req.session.destroy();
+      res.send({ message: "User logout successful" });
+    } else {
+      res.send({ error: "No user Logged in" });
+    }
+  } catch (err) {
+    console.error(err);
+  }
 };
