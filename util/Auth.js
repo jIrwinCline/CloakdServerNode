@@ -17,15 +17,33 @@ const jwtAuth = (req, res, next) => {
     res.status(500).json({ error: "No Token Found" });
   }
 };
-const roleAuth = role => {
+const roleAuth = roles => {
   return (req, res, next) => {
-    if (!req.session.userData) res.json({ error: "Not Signed in" });
-    if (
-      req.session.userData.role === role ||
-      req.session.userData.role === "admin"
-    )
-      next();
-    else res.json({ error: "Not Authorized by Role" });
+    try {
+      if (!req.session.userData) res.json({ error: "Not Signed in" });
+      if (req.session.userData.role === "admin" || roles[0] === "all") next();
+      //current user is admin or All user roles are permitted
+      else {
+        switch (roles.length) {
+          case 1:
+            if (req.session.userData.role === roles[0]) next();
+            else res.json({ error: "Not Authorized by Role" });
+            break;
+          case 2:
+            if (
+              req.session.userData.role === roles[0] ||
+              req.session.userData.role === roles[1]
+            )
+              next();
+            else res.json({ error: "Not Authorized by Role" });
+            break;
+          default:
+            res.json({ error: "Internal Role Assignment error" });
+        }
+      }
+    } catch (err) {
+      console.log(err);
+    }
   };
 };
 

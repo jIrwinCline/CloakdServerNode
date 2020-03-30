@@ -46,7 +46,7 @@ const privateKey = fs.readFileSync("./private.pem", "utf8");
 /**DELETE*/ app.get("/logout", logout);
 
 /**JOBS */
-/**CREATE */ app.post("/jobs", roleAuth("business"), createJob);
+/**CREATE */ app.post("/jobs", roleAuth(["business"]), createJob);
 /**READ */ app.get("/jobs", getAllJobs);
 /**READ */ app.get("/jobs/:id", getJob);
 
@@ -56,12 +56,12 @@ app.get("/test", (req, res) => {
   res.send(userDetails);
 });
 //test
-app.get("/admin", roleAuth("admin"), (req, res) => {
+app.get("/admin", roleAuth(["admin"]), (req, res) => {
   let userDetails = req.session.userData;
   res.send(userDetails.role);
 });
 //test
-app.get("/customer", roleAuth("customer"), (req, res) => {
+app.get("/customer", roleAuth(["none"]), (req, res) => {
   let userDetails = req.session.userData;
   res.send(userDetails.role);
 });
