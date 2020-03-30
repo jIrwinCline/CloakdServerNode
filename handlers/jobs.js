@@ -1,3 +1,5 @@
+const pool = require("../db");
+
 exports.createJob = async (req, res) => {
   try {
     let {
@@ -31,5 +33,26 @@ exports.createJob = async (req, res) => {
     res.json(job.rows[0]);
   } catch (err) {
     console.log(err);
+  }
+};
+
+exports.getAllJobs = async (req, res) => {
+  try {
+    const jobs = await pool.query("SELECT * FROM public.job");
+    res.json(jobs.rows);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+exports.getJob = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const job = await pool.query("SELECT * FROM public.job WHERE id = $1", [
+      id
+    ]);
+    res.json(job.rows[0]);
+  } catch (error) {
+    console.log(error);
   }
 };
