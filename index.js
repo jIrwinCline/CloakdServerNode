@@ -45,7 +45,39 @@ const privateKey = fs.readFileSync("./private.pem", "utf8");
 /**DELETE*/ app.get("/logout", logout);
 
 /**JOBS */
-/**CREATE */ app.post("/jobs", (req, res) => {});
+/**CREATE */ app.post("/jobs", async (req, res) => {
+  try {
+    const {
+      contactFName,
+      contactLName,
+      description,
+      duties,
+      location,
+      hours,
+      startDate,
+      endDate
+    } = req.body;
+    const startDate = new Date(startDate).toISOString();
+    const endDate = new Date(endDate).toISOString();
+    const customerId = req.session.userData.id;
+    console.log(customerId);
+    const job = await pool.query(
+      "INSERT INTO public.job (contact_fname, contact_lname, description, duties, location, hours, date, customer_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *",
+      [
+        contactFName,
+        contactLName,
+        description,
+        location,
+        hours,
+        startDate,
+        endDate,
+        customerId
+      ]
+    );
+  } catch (err) {
+    console.log(err);
+  }
+});
 
 //test
 app.get("/test", (req, res) => {
