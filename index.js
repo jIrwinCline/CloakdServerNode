@@ -27,9 +27,9 @@ const {
   getUser,
   updateUser,
   deleteUser,
-  getCurrentUser
+  registerUser
 } = require("./handlers/user");
-const { registerUser, login, logout } = require("./handlers/session");
+const { getCurrentUser, login, logout } = require("./handlers/session");
 //ROUTES//
 const privateKey = fs.readFileSync("./private.pem", "utf8");
 /**USERS */
@@ -45,6 +45,7 @@ const privateKey = fs.readFileSync("./private.pem", "utf8");
 /**DELETE*/ app.get("/logout", logout);
 
 /**JOBS */
+/**CREATE */ app.post("/jobs", (req, res) => {});
 
 //test
 app.get("/test", (req, res) => {

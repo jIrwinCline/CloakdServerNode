@@ -3,39 +3,6 @@ const cookieParser = require("cookie-parser");
 const pool = require("../db");
 const { sha512, saltHashPassword } = require("../util/Salt");
 
-exports.registerUser = async (req, res) => {
-  try {
-    const {
-      email,
-      password,
-      address,
-      fname,
-      lname,
-      phone,
-      businessName,
-      role
-    } = req.body;
-    let secret = saltHashPassword(password);
-    const newUser = await pool.query(
-      "INSERT INTO public.user (email, address, fname, lname, phone, business_name, role, password_hash, password_salt) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *",
-      [
-        email,
-        address,
-        fname,
-        lname,
-        phone,
-        businessName,
-        role,
-        secret.passwordHash,
-        secret.salt
-      ]
-    );
-    req.session.userData = newUser.rows[0];
-    res.json({ message: `New user with id: ${newUser.rows[0].id} created` });
-  } catch (err) {
-    console.error(err);
-  }
-};
 exports.login = async (req, res) => {
   try {
     const { password, email } = req.body;
@@ -67,4 +34,14 @@ exports.logout = (req, res) => {
   } catch (err) {
     console.error(err);
   }
+};
+
+exports.getCurrentUser = async (req, res) => {
+  let { id } = req.session.userData;
+  const currentUser = await pool.query(
+    "SELECT * FROM public.user WHERE id = $1",
+    [id]
+  );
+  // const currentUser = jwt.decode(authToken, privateKey);
+  res.json(currentUser.rows);
 };
