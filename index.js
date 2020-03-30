@@ -7,7 +7,7 @@ const app = express();
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const pool = require("./db");
-const { isAuth, isAdmin } = require("./util/Auth");
+const { jwtAuth, roleAuth } = require("./util/Auth");
 
 //middleware
 app.use(cors());
@@ -41,7 +41,7 @@ const privateKey = fs.readFileSync("./private.pem", "utf8");
 
 /**SESSIONS */
 /**CREATE*/ app.post("/login", login);
-/**READ*/ app.get("/currentuser", isAuth, getCurrentUser);
+/**READ*/ app.get("/currentuser", jwtAuth, getCurrentUser);
 /**DELETE*/ app.get("/logout", logout);
 
 /**JOBS */
@@ -52,7 +52,12 @@ app.get("/test", (req, res) => {
   res.send(userDetails);
 });
 //test
-app.get("/admin", isAdmin, (req, res) => {
+app.get("/admin", roleAuth("admin"), (req, res) => {
+  let userDetails = req.session.userData;
+  res.send(userDetails.role);
+});
+//test
+app.get("/customer", roleAuth("customer"), (req, res) => {
   let userDetails = req.session.userData;
   res.send(userDetails.role);
 });
