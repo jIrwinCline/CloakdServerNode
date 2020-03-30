@@ -1,13 +1,6 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const jwt = require("jsonwebtoken");
-const fs = require("fs");
+// const jwt = require("jsonwebtoken");
 
-const app = express();
-const cors = require("cors");
-const cookieParser = require("cookie-parser");
 const pool = require("../db");
-const isAuth = require("../util/Auth");
 const { saltHashPassword } = require("../util/Salt");
 
 exports.registerUser = async (req, res) => {
