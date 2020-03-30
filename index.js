@@ -7,7 +7,7 @@ const app = express();
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const pool = require("./db");
-const isAuth = require("./util/Auth");
+const { isAuth, isAdmin } = require("./util/Auth");
 
 //middleware
 app.use(cors());
@@ -50,6 +50,11 @@ const privateKey = fs.readFileSync("./private.pem", "utf8");
 app.get("/test", (req, res) => {
   let userDetails = req.session;
   res.send(userDetails);
+});
+//test
+app.get("/admin", isAdmin, (req, res) => {
+  let userDetails = req.session.userData;
+  res.send(userDetails.role);
 });
 //get auth token
 app.get("/authenticate", (req, res) => {

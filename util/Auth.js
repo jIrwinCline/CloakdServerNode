@@ -1,7 +1,7 @@
 const fs = require("fs");
 const jwt = require("jsonwebtoken");
 
-module.exports = (req, res, next) => {
+const isAuth = (req, res, next) => {
   if (typeof req.headers.authorization !== "undefined") {
     let token = req.headers.authorization.split(" ")[1];
     let privateKey = fs.readFileSync("./private.pem", "utf8");
@@ -16,4 +16,15 @@ module.exports = (req, res, next) => {
   } else {
     res.status(500).json({ error: "No Token Found" });
   }
+};
+
+const isAdmin = (req, res, next) => {
+  if (!req.session.userData) res.json({ error: "Not Signed in" });
+  if (req.session.userData.role === "admin") next();
+  else res.json({ error: "Not Authorized by Role" });
+};
+
+module.exports = {
+  isAuth,
+  isAdmin
 };
