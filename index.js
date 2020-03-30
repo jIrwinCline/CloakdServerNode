@@ -23,14 +23,13 @@ app.use(
 );
 //Function Imports
 const {
-  registerUser,
   getAllUsers,
   getUser,
   updateUser,
   deleteUser,
   getCurrentUser
 } = require("./handlers/user");
-const { login, logout } = require("./handlers/session");
+const { registerUser, login, logout } = require("./handlers/session");
 //ROUTES//
 const privateKey = fs.readFileSync("./private.pem", "utf8");
 /**USERS */
@@ -39,11 +38,13 @@ const privateKey = fs.readFileSync("./private.pem", "utf8");
 /**READ*/ app.get("/users/:id", getUser);
 /**UPDATE*/ app.put("/users/:id", updateUser);
 /**DELETE*/ app.delete("/users/:id", deleteUser);
-/**READ*/ app.get("/currentuser", isAuth, getCurrentUser);
 
 /**SESSIONS */
 /**CREATE*/ app.post("/login", login);
+/**READ*/ app.get("/currentuser", isAuth, getCurrentUser);
 /**DELETE*/ app.get("/logout", logout);
+
+/**JOBS */
 
 //test
 app.get("/test", (req, res) => {
