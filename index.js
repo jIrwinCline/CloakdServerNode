@@ -30,7 +30,7 @@ const {
   deleteUser,
   getCurrentUser
 } = require("./handlers/user");
-const { login } = require("./handlers/session");
+const { login, logout } = require("./handlers/session");
 //ROUTES//
 const privateKey = fs.readFileSync("./private.pem", "utf8");
 /**USERS */
