@@ -58,6 +58,48 @@ exports.getJob = async (req, res) => {
   }
 };
 
+exports.updateJob = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const currentUser = req.session.userData;
+    const customerId = await pool.query(
+      "SELECT customer_id FROM public.job WHERE id = $1",
+      [id]
+    );
+    if (!customerId) res.json({ error: "No Job With The ID" });
+    if (currentUser.role === "customer" && currentUser.id == customerId) {
+      const {
+        contactFName,
+        contactLName,
+        contactPhone,
+        description,
+        duties,
+        location,
+        hours,
+        startDate,
+        endDate
+      } = req.body;
+      const updatedJob = await pool.query(
+        "UPDATE public.job SET contact_fname = $2, contact_lname = $3, contact_phone = $4, description = $5, duties = $6, location = $7, hours = $8, start_date = $9, end_date = $10 WHERE id = $1",
+        [
+          id,
+          contactFName,
+          contactLName,
+          contactPhone,
+          description,
+          duties,
+          location,
+          hours,
+          startDate,
+          endDate
+        ]
+      );
+    }
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 exports.deleteJob = async (req, res) => {
   try {
     const { id } = req.params;
