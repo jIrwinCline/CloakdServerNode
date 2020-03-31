@@ -59,7 +59,7 @@ const privateKey = fs.readFileSync("./private.pem", "utf8");
 /**UPDATE */ app.put("/jobs/:id/update", roleAuth(["customer"]), updateJob);
 //prettier-ignore
 /**UPDATE */ app.patch("/jobs/:id/fill", roleAuth(["business", "officer"]), fillJob);
-/**DELETE */ app.delete("/jobs/:id", deleteJob);
+/**DELETE */ app.delete("/jobs/:id", roleAuth(["customer"]), deleteJob);
 
 //test
 app.get("/test", (req, res) => {
