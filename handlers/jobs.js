@@ -62,12 +62,14 @@ exports.updateJob = async (req, res) => {
   try {
     const { id } = req.params;
     const currentUser = req.session.userData;
-    const customerId = await pool.query(
-      "SELECT customer_id FROM public.job WHERE id = $1",
-      [id]
-    );
-    if (!customerId) res.json({ error: "No Job With The ID" });
-    if (currentUser.role === "customer" && currentUser.id == customerId) {
+    const job = await pool.query("SELECT * FROM public.job WHERE id = $1", [
+      id
+    ]);
+    if (!job.rows[0].customer_id) res.json({ error: "No Job With The ID" });
+    if (
+      currentUser.role === "customer" &&
+      currentUser.id == job.rows[0].customer_id
+    ) {
       const {
         contactFName,
         contactLName,
@@ -75,12 +77,11 @@ exports.updateJob = async (req, res) => {
         description,
         duties,
         location,
-        hours,
         startDate,
         endDate
       } = req.body;
       const updatedJob = await pool.query(
-        "UPDATE public.job SET contact_fname = $2, contact_lname = $3, contact_phone = $4, description = $5, duties = $6, location = $7, hours = $8, start_date = $9, end_date = $10 WHERE id = $1",
+        "UPDATE public.job SET contact_fname = $2, contact_lname = $3, contact_phone = $4, description = $5, duties = $6, location = $7, start_date = $8, end_date = $9 WHERE id = $1",
         [
           id,
           contactFName,
@@ -89,12 +90,12 @@ exports.updateJob = async (req, res) => {
           description,
           duties,
           location,
-          hours,
           startDate,
           endDate
         ]
       );
     }
+    res.json({ message: "Job Updated" });
   } catch (err) {
     console.error(err);
   }

@@ -30,7 +30,13 @@ const {
   registerUser
 } = require("./handlers/user");
 const { getCurrentUser, login, logout } = require("./handlers/session");
-const { createJob, getAllJobs, getJob, deleteJob } = require("./handlers/jobs");
+const {
+  createJob,
+  getAllJobs,
+  getJob,
+  updateJob,
+  deleteJob
+} = require("./handlers/jobs");
 //ROUTES//
 const privateKey = fs.readFileSync("./private.pem", "utf8");
 /**USERS */
@@ -46,9 +52,10 @@ const privateKey = fs.readFileSync("./private.pem", "utf8");
 /**DELETE*/ app.get("/logout", logout);
 
 /**JOBS */
-/**CREATE */ app.post("/jobs", roleAuth(["business"]), createJob);
+/**CREATE */ app.post("/jobs/post", roleAuth(["customer"]), createJob);
 /**READ */ app.get("/jobs", getAllJobs);
 /**READ */ app.get("/jobs/:id", getJob);
+/**UPDATE */ app.put("/jobs/:id/update", roleAuth(["customer"]), updateJob);
 /**DELETE */ app.delete("/jobs/:id", deleteJob);
 
 //test
