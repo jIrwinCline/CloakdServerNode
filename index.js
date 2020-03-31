@@ -35,7 +35,8 @@ const {
   getAllJobs,
   getJob,
   updateJob,
-  deleteJob
+  deleteJob,
+  fillJob
 } = require("./handlers/jobs");
 //ROUTES//
 const privateKey = fs.readFileSync("./private.pem", "utf8");
@@ -56,6 +57,8 @@ const privateKey = fs.readFileSync("./private.pem", "utf8");
 /**READ */ app.get("/jobs", getAllJobs);
 /**READ */ app.get("/jobs/:id", getJob);
 /**UPDATE */ app.put("/jobs/:id/update", roleAuth(["customer"]), updateJob);
+//prettier-ignore
+/**UPDATE */ app.patch("/jobs/:id/fill", roleAuth(["business", "officer"]), fillJob);
 /**DELETE */ app.delete("/jobs/:id", deleteJob);
 
 //test

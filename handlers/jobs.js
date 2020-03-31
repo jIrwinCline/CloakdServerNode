@@ -100,6 +100,26 @@ exports.updateJob = async (req, res) => {
     console.error(err);
   }
 };
+exports.fillJob = async (req, res) => {
+  const currentUser = req.session.userData;
+  const { id } = req.params;
+  const userTypeId =
+    currentUser.role === "business" ? "business_id" : "officer_id";
+  let filledJob = await pool.query("SELECT * FROM public.job WHERE id = $1", [
+    id
+  ]);
+  if (typeof filledJob.rows[0] === "undefined")
+    res.status(404).json({ message: "No job found" });
+  else {
+    filledJob = await pool.query(`UPDATE public.job SET ${userTypeId} = $1`, [
+      currentUser.id
+    ]);
+    filledJob = await pool.query("SELECT * FROM public.job WHERE id = $1", [
+      id
+    ]);
+    res.json(filledJob.rows[0]);
+  }
+};
 
 exports.deleteJob = async (req, res) => {
   try {
