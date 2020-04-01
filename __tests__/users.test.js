@@ -4,13 +4,17 @@ const pool = require("../db");
 
 const request = require("supertest");
 const app = require("../app");
-
+const { createUserTable, createJobTable } = require("../databaseCreation");
 const { sha512, saltHashPassword } = require("../util/Salt");
 
 beforeAll(async () => {
-  //   await pool.query(
-  //     "IF NOT EXISTS CREATE TABLE students (id SERIAL PRIMARY KEY, name TEXT)"
-  //   );
+  //   await pool.connect();
+  try {
+    await pool.query(createUserTable);
+    await pool.query(createJobTable);
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 beforeEach(async () => {
@@ -29,10 +33,11 @@ beforeEach(async () => {
 
 afterEach(async () => {
   await pool.query("DELETE FROM public.user");
+  await pool.query("DELETE FROM public.job");
 });
 
 afterAll(async () => {
-  //   await pool.query("DROP TABLE public.user");
+  await pool.query("DROP TABLE public.user, public.job");
   pool.end();
 });
 
@@ -80,6 +85,11 @@ describe("user routes", () => {
     expect(response.body.length).toBe(2);
     expect(response.body[0]).toHaveProperty("id");
     expect(response.body[0]).toHaveProperty("role");
+    expect(response.statusCode).toBe(200);
+  });
+  it("gets one specific user", async () => {
+    let response = await request(app).get("/users/6"); //at this point in testing, the 6th and 7th users are the only ones in the db
+    expect(response.body).toHaveProperty("id");
     expect(response.statusCode).toBe(200);
   });
 });
