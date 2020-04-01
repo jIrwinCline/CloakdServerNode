@@ -93,7 +93,7 @@ describe("user routes", () => {
     expect(response.statusCode).toBe(200);
   });
   it("Updates specific user info", async () => {
-    const user = await request(app).get("/users/6");
+    let user = await request(app).get("/users/6");
     const response = await request(app)
       .put("/users/8")
       .send({
@@ -106,6 +106,8 @@ describe("user routes", () => {
         businessName: "Oregon Historical Society",
         role: "customer"
       });
+    user = await request(app).get("/users/6");
     expect(response.statusCode).toBe(200);
+    expect(user.lname).toEqual("Still not a person");
   });
 });
