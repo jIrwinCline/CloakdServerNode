@@ -30,7 +30,7 @@ exports.registerUser = async (req, res) => {
       ]
     );
     req.session.userData = newUser.rows[0];
-    res.json({ message: `New user with id: ${newUser.rows[0].id} created` });
+    res.json(newUser.rows[0]);
   } catch (err) {
     console.error(err);
   }
