@@ -49,7 +49,9 @@ exports.getUser = async (req, res) => {
     const user = await pool.query("SELECT * FROM public.user WHERE id = $1", [
       id
     ]);
-    res.json(user.rows[0]);
+    user.rows[0]
+      ? res.json(user.rows[0])
+      : res.status(404).json({ error: "No user Found" });
   } catch (err) {
     console.error(err);
   }
