@@ -92,4 +92,20 @@ describe("user routes", () => {
     expect(response.body).toHaveProperty("id");
     expect(response.statusCode).toBe(200);
   });
+  it("Updates specific user info", async () => {
+    const user = await request(app).get("/users/6");
+    const response = await request(app)
+      .put("/users/8")
+      .send({
+        email: "customer@gmail.com",
+        password: "ibanez12",
+        address: "839 SW Broadway Drive APT 74",
+        fname: "Josh",
+        lname: "Still not a person",
+        phone: "5037105277",
+        businessName: "Oregon Historical Society",
+        role: "customer"
+      });
+    expect(response.statusCode).toBe(200);
+  });
 });

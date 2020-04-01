@@ -61,7 +61,7 @@ exports.updateUser = async (req, res) => {
     const { id } = req.params;
     const {
       email,
-      secret,
+      password,
       address,
       fname,
       lname,
@@ -69,9 +69,11 @@ exports.updateUser = async (req, res) => {
       businessName,
       role
     } = req.body;
+    const secret = saltHashPassword(password);
     const updateUser = await pool.query(
-      "UPDATE public.user SET email = $2, secret = $3, address = $4, fname = $5, lname = $6, phone = $7, business_name = $8 WHERE id = $1",
-      [id, email, secret, address, fname, lname, phone, businessName]
+      "UPDATE public.user SET email = $2, password_hash = $3, password_salt = $9, address = $4, fname = $5, lname = $6, phone = $7, business_name = $8 WHERE id = $1",
+      //prettier-ignore
+      [id, email, secret.passwordHash, address, fname, lname, phone, businessName, secret.salt]
     );
 
     res.json({ message: "User Updated" });
