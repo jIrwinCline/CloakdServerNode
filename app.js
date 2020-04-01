@@ -37,7 +37,7 @@ const {
   updateJob,
   deleteJob,
   fillJob
-} = require("./handlers/jobs");
+} = require("./handlers/job");
 //ROUTES//
 const privateKey = fs.readFileSync("./private.pem", "utf8");
 /**USERS */
@@ -59,7 +59,7 @@ const privateKey = fs.readFileSync("./private.pem", "utf8");
 /**UPDATE */ app.put("/jobs/:id/update", roleAuth(["customer"]), updateJob);
 //prettier-ignore
 /**UPDATE */ app.patch("/jobs/:id/fill", roleAuth(["business", "officer"]), fillJob);
-/**DELETE */ app.delete("/jobs/:id", deleteJob);
+/**DELETE */ app.delete("/jobs/:id", roleAuth(["customer"]), deleteJob);
 
 //test
 app.get("/test", (req, res) => {
@@ -84,6 +84,4 @@ app.get("/authenticate", (req, res) => {
   res.send({ authorization: token });
 });
 
-app.listen(5000, () => {
-  console.log("server has started on port 5000");
-});
+module.exports = app;

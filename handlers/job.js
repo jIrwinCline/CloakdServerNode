@@ -66,9 +66,10 @@ exports.updateJob = async (req, res) => {
       id
     ]);
     if (!job.rows[0].customer_id) res.json({ error: "No Job With The ID" });
+    //allows customer that creted job, or any admin
     if (
-      currentUser.role === "customer" &&
-      currentUser.id == job.rows[0].customer_id
+      currentUser.id == job.rows[0].customer_id ||
+      currentUser.role === "admin"
     ) {
       const {
         contactFName,
@@ -94,8 +95,10 @@ exports.updateJob = async (req, res) => {
           endDate
         ]
       );
+      res.json({ message: "Job Updated" });
+    } else {
+      res.json({ error: "Unauthorized by poster ID" });
     }
-    res.json({ message: "Job Updated" });
   } catch (err) {
     console.error(err);
   }
@@ -124,10 +127,24 @@ exports.fillJob = async (req, res) => {
 exports.deleteJob = async (req, res) => {
   try {
     const { id } = req.params;
-    const deleteJob = await pool.query("DELETE FROM public.job WHERE id = $1", [
+    const currentUser = req.session.userData;
+    const job = await pool.query("SELECT * FROM public.job WHERE id = $1", [
       id
     ]);
-    res.json({ message: "Job Deleted" });
+    if (!job.rows[0].customer_id) res.json({ error: "No Job With The ID" });
+    //allows customer that creted job, or any admin
+    if (
+      currentUser.id == job.rows[0].customer_id ||
+      currentUser.role === "admin"
+    ) {
+      const deleteJob = await pool.query(
+        "DELETE FROM public.job WHERE id = $1",
+        [id]
+      );
+      res.json({ message: "Job Deleted" });
+    } else {
+      res.json({ error: "Unauthorized by poster ID" });
+    }
   } catch (err) {
     console.log(err);
   }
