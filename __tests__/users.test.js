@@ -130,19 +130,48 @@ describe("users and sessions", () => {
       });
   });
   it("Updates specific user info", async () => {
-    let user = await agent.get(`http://localhost:${port}/users/1`);
-    const response = await agent.put(`http://localhost:${port}/users/1`).send({
-      email: "customer@gmail.com",
-      password: "ibanez12",
-      address: "839 SW Broadway Drive APT 74",
-      fname: "Josh",
-      lname: "Still not a person",
-      phone: "5037105277",
-      businessName: "Oregon Historical Society",
-      role: "customer"
+    // return createSession("admin@gmail.com", agent, port).then(() => {
+    //   agent.get(`http://localhost:${port}/users/1`).then(res => {
+    //     agent
+    //       .put(`http://localhost:${port}/users/1`)
+    //       .send({
+    //         email: "customer@gmail.com",
+    //         password: "ibanez12",
+    //         address: "839 SW Broadway Drive APT 74",
+    //         fname: "Josh",
+    //         lname: "Still not a person",
+    //         phone: "5037105277",
+    //         businessName: "Oregon Historical Society",
+    //         role: "customer"
+    //       })
+    //       .catch(err => {
+    //         console.log(err);
+    //       })
+    //       .then(res => {
+    //         agent.get(`http://localhost:${port}/users/1`).then(res => {
+    //           expect(res.statusCode).toBe(200);
+    //           expect(res.body.lname).toEqual("Still not a person");
+    //         });
+    //       });
+    //   });
+    // });
+    return createSession("admin@gmail.com", agent, port).then(async () => {
+      let user = await agent.get(`http://localhost:${port}/users/1`);
+      const response = await agent
+        .put(`http://localhost:${port}/users/1`)
+        .send({
+          email: "customer@gmail.com",
+          password: "ibanez12",
+          address: "839 SW Broadway Drive APT 74",
+          fname: "Josh",
+          lname: "Still not a person",
+          phone: "5037105277",
+          businessName: "Oregon Historical Society",
+          role: "customer"
+        });
+      user = await agent.get(`http://localhost:${port}/users/1`);
+      expect(response.statusCode).toBe(200);
+      expect(user.body.lname).toEqual("Still not a person");
     });
-    user = await agent.get(`http://localhost:${port}/users/1`);
-    expect(response.statusCode).toBe(200);
-    expect(user.body.lname).toEqual("Still not a person");
   });
 });
