@@ -54,13 +54,13 @@ describe("21040811", () => {
     server.close(done);
     pool.end();
   });
-  it("should return 401 status code", () => {
+  it("should return 401 status code, because you're not an admin", () => {
     return agent.get(`http://localhost:${port}/users`).catch(err => {
       expect(err.response.status).toEqual(401);
     });
   });
 
-  it("should sign in success and access /protected API correctly", () => {
+  it("should sign in success and access /users route correctly as admin", () => {
     return agent
       .post(`http://localhost:${port}/login`)
       .send({ email: "admin@gmail.com", password: "password" })
@@ -70,8 +70,73 @@ describe("21040811", () => {
       .then(() => agent.get(`http://localhost:${port}/users`))
       .then(res => {
         expect(res.status).toEqual(200);
+        expect(res.body.length).toBe(4);
+        expect(res.body[0]).toHaveProperty("id");
+        expect(res.body[0]).toHaveProperty("role");
+        expect(res.statusCode).toBe(200);
       });
   });
+  it("creates a user", async () => {
+    return request(app)
+      .post("/register")
+      .send({
+        email: "test@gmail.com",
+        password: "password",
+        address: "839 SW Broadway Drive APT 74",
+        fname: "Jake",
+        lname: "Irwin",
+        phone: "5037105277",
+        businessName: "Oregon Historical Society",
+        role: "customer"
+      })
+      .then(res => {
+        expect(res.body).toEqual({
+          id: expect.any(Number),
+          email: "test@gmail.com",
+          password_hash: expect.any(String),
+          password_salt: expect.any(String),
+          address: "839 SW Broadway Drive APT 74",
+          fname: "Jake",
+          lname: "Irwin",
+          phone: "5037105277",
+          business_name: "Oregon Historical Society",
+          role: "customer",
+          unarmed: null,
+          unarmed_exp: null,
+          armed: null,
+          armed_exp: null,
+          business_id: null,
+          business_name: "Oregon Historical Society",
+          county: null,
+          dpsst: null
+        });
+      });
+  });
+  it("gets one specific user", async () => {
+    let response = await request(app).get("/users/1");
+    expect(response.body).toHaveProperty("id");
+    expect(response.statusCode).toBe(200);
+  });
+  it("Updates specific user info", async () => {
+    let user = await request(app).get("/users/1");
+    const response = await request(app)
+      .put("/users/1")
+      .send({
+        email: "customer@gmail.com",
+        password: "ibanez12",
+        address: "839 SW Broadway Drive APT 74",
+        fname: "Josh",
+        lname: "Still not a person",
+        phone: "5037105277",
+        businessName: "Oregon Historical Society",
+        role: "customer"
+      });
+    user = await request(app).get("/users/1");
+    expect(response.statusCode).toBe(200);
+    // console.log(user);
+    expect(user.body.lname).toEqual("Still not a person");
+  });
+  // it("deletes a specific")
 });
 
 // beforeAll(async () => {
