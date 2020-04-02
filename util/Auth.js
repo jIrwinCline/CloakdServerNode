@@ -19,15 +19,9 @@ const jwtAuth = (req, res, next) => {
 };
 const roleAuth = roles => {
   return (req, res, next) => {
-    // temporary work around for testing: further explore - https://stackoverflow.com/questions/21040811/testing-route-with-fake-session-in-node-js
-    // if (process.env.NODE_ENV === "test") {
-    //   next();
-    //   return null;
-    // }
-    //
     try {
       if (!req.session.userData || typeof req.session.userData === "undefined")
-        res.status(401).json({ error: "Not Signed in" });
+        return res.status(401).json({ error: "Not Signed in" });
       if (req.session.userData.role === "admin" || roles[0] === "all") next();
       //current user is admin or All user roles are permitted
       else {

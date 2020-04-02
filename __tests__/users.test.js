@@ -7,7 +7,7 @@ const superagent = require("superagent");
 const app = require("../app");
 const { createUserTable, createJobTable } = require("../databaseCreation");
 const { sha512, saltHashPassword } = require("../util/Salt");
-const { createSession } = require("./test-helpers/create-session");
+const { createSession } = require("../data-helpers/create-session");
 
 var session = require("supertest-session");
 var testSession = null;
@@ -59,15 +59,15 @@ describe("users and sessions", () => {
       expect(err.response.status).toEqual(401);
     });
   });
+  // it("Should login and return status code 200", () => {
+  //   createSession = async(adm);
+  // });
 
-  it("should sign in success and access /users route correctly as admin", () => {
-    // return agent
-    //   .post(`http://localhost:${port}/login`)
-    //   .send({ email: "admin@gmail.com", password: "password" })
-    //   .then(res => {
-    //     expect(res.status).toEqual(200);
-    //   })
+  it("should sign in with admin, return 200 status, and access /users route correctly as admin", () => {
     return createSession("admin@gmail.com", agent, port)
+      .then(res => {
+        expect(res.status).toEqual(200);
+      })
       .then(() => agent.get(`http://localhost:${port}/users`))
       .then(res => {
         expect(res.status).toEqual(200);
