@@ -8,6 +8,9 @@ const { createUserTable, createJobTable } = require("../databaseCreation");
 const { sha512, saltHashPassword } = require("../util/Salt");
 const { createSession } = require("./test-helpers/create-session");
 
+var session = require("supertest-session");
+var testSession = null;
+
 let agent = request.agent(app);
 
 beforeAll(async () => {
@@ -41,9 +44,12 @@ beforeAll(async () => {
 beforeEach(async () => {
   // const response = await createSession("admin@gmail.com");
   // console.log(response);
+  // testSession = session(app);
 });
 
-afterEach(async () => {});
+afterEach(async () => {
+  // testSession.end();
+});
 
 afterAll(async () => {
   await pool.query("DELETE FROM public.user");
@@ -59,6 +65,14 @@ describe("user routes", () => {
       .send({ email: "admin@gmail.com", password: "password" });
     expect(response.statusCode).toBe(200);
   });
+  // it("logs admin in", async done => {
+  //   testSession
+  //     .post("/login")
+  //     .send({ email: "admin@gmail.com", password: "password" })
+  //     .expect(200)
+  //     .end(done);
+  // });
+
   it("creates a user", async () => {
     return request(app)
       .post("/register")
@@ -97,12 +111,15 @@ describe("user routes", () => {
   });
   it("retrieves array of users", async () => {
     // const login = await createSession("admin@gmail.com");
-    let agent = await request
-      .agent(app)
+    let login = await request(app)
       .post("/login")
       .send({ email: "admin@gmail.com", password: "password" });
-    expect(agent.statusCode).toBe(200);
-    let response = await agent.get("/users");
+    expect(login.statusCode).toBe(200);
+    // let login = await request(app)
+    //   .post("/login")
+    //   .send({ email: "admin@gmail.com", password: "password" });
+    // expect(login.statusCode).toBe(200);
+    let response = await request(app).get("/users");
     //   console.log(response);
     // response = response;
     expect(response.body.length).toBe(5);

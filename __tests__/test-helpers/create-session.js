@@ -7,6 +7,7 @@ exports.createSession = async email => {
     .agent(app)
     .post("/login")
     .send({ email: email, password: "password" });
+  console.log(session.session);
   //   expect(session.status).toEqual(200);
   //   console.log(session);
   // .then(res => {

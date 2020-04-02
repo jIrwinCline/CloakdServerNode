@@ -18,7 +18,7 @@ app.use(
   session({
     secret: "secret-key",
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: true
   })
 );
 //Function Imports
@@ -63,7 +63,7 @@ const privateKey = fs.readFileSync("./private.pem", "utf8");
 
 //test
 app.get("/test", (req, res) => {
-  let userDetails = req.cookies;
+  let userDetails = [req.cookies, req.session];
   res.send(userDetails);
 });
 //test
