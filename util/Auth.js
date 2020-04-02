@@ -20,10 +20,10 @@ const jwtAuth = (req, res, next) => {
 const roleAuth = roles => {
   return (req, res, next) => {
     // temporary work around for testing: further explore - https://stackoverflow.com/questions/21040811/testing-route-with-fake-session-in-node-js
-    if (process.env.NODE_ENV === "test") {
-      next();
-      return null;
-    }
+    // if (process.env.NODE_ENV === "test") {
+    //   next();
+    //   return null;
+    // }
     //
     try {
       if (!req.session.userData || typeof req.session.userData === "undefined")

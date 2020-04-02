@@ -50,8 +50,6 @@ describe("21040811", () => {
     });
   });
   afterAll(async done => {
-    //   await pool.query("DELETE FROM public.user");
-    // await pool.query("DELETE FROM public.job");
     await pool.query("DROP TABLE public.user, public.job");
     server.close(done);
     pool.end();
@@ -72,7 +70,6 @@ describe("21040811", () => {
       .then(() => agent.get(`http://localhost:${port}/users`))
       .then(res => {
         expect(res.status).toEqual(200);
-        // expect(res.body).to.be.eql({ data: "protected data" });
       });
   });
 });
