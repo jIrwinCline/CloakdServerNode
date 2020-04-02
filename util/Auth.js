@@ -26,14 +26,15 @@ const roleAuth = roles => {
     }
     //
     try {
-      if (!req.session.userData) res.json({ error: "Not Signed in" });
+      if (!req.session.userData || typeof req.session.userData === "undefined")
+        res.status(401).json({ error: "Not Signed in" });
       if (req.session.userData.role === "admin" || roles[0] === "all") next();
       //current user is admin or All user roles are permitted
       else {
         switch (roles.length) {
           case 1:
             if (req.session.userData.role === roles[0]) next();
-            else res.json({ error: "Not Authorized by Role" });
+            else res.status(401).json({ error: "Not Authorized by Role" });
             break;
           case 2:
             if (
@@ -41,7 +42,7 @@ const roleAuth = roles => {
               req.session.userData.role === roles[1]
             )
               next();
-            else res.json({ error: "Not Authorized by Role" });
+            else res.status(401).json({ error: "Not Authorized by Role" });
             break;
           default:
             res.json({ error: "Internal Role Assignment error" });
