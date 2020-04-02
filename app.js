@@ -18,7 +18,7 @@ app.use(
   session({
     secret: "secret-key",
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: true
   })
 );
 //Function Imports
@@ -42,7 +42,7 @@ const {
 const privateKey = fs.readFileSync("./private.pem", "utf8");
 /**USERS */
 /**CREATE*/ app.post("/register", registerUser);
-/**READ*/ app.get("/users", getAllUsers);
+/**READ*/ app.get("/users", roleAuth(["admin"]), getAllUsers);
 /**READ*/ app.get("/users/:id", getUser);
 /**UPDATE*/ app.put("/users/:id", updateUser);
 /**DELETE*/ app.delete("/users/:id", deleteUser);
@@ -63,7 +63,7 @@ const privateKey = fs.readFileSync("./private.pem", "utf8");
 
 //test
 app.get("/test", (req, res) => {
-  let userDetails = req.session;
+  let userDetails = [req.cookies, req.session];
   res.send(userDetails);
 });
 //test
