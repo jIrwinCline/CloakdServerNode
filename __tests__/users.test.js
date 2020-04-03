@@ -12,15 +12,12 @@ const { createSession } = require("../data-helpers/create-session");
 var session = require("supertest-session");
 var testSession = null;
 
-// let agent = request.agent(app);
-
 describe("users and sessions", () => {
   let server;
   const port = 4001;
   const agent = superagent.agent();
   beforeAll(done => {
     server = app.listen(port, async () => {
-      // await pool.query("DROP TABLE public.user, public.job");
       await pool.query(createUserTable);
       await pool.query(createJobTable);
       const secret = saltHashPassword("password");
@@ -29,7 +26,6 @@ describe("users and sessions", () => {
         (email, address, fname, lname, phone, business_name, role, password_hash, password_salt) VALUES('customer@gmail.com', '159 SW Dartmouth St', 'Josh', 'Notperson', '555-555-5555', 'Oregon Historical Society', 'customer', $1, $2) RETURNING *`,
         [secret.passwordHash, secret.salt]
       );
-      // console.log(userCustomer.rows[0]);
       const userOfficer = await pool.query(
         `INSERT INTO public.user
         (email, address, fname, lname, phone, role, password_hash, password_salt) VALUES('officer@gmail.com', '123 NE Park ave', 'Josh', 'Person', '555-555-5555', 'officer', $1, $2) RETURNING *`,
@@ -59,9 +55,6 @@ describe("users and sessions", () => {
       expect(err.response.status).toEqual(401);
     });
   });
-  // it("Should login and return status code 200", () => {
-  //   createSession = async(adm);
-  // });
 
   it("should sign in with admin, return 200 status, and access /users route correctly as admin", () => {
     return createSession("admin@gmail.com", agent, port)
@@ -130,31 +123,6 @@ describe("users and sessions", () => {
       });
   });
   it("Updates specific user info", async () => {
-    // return createSession("admin@gmail.com", agent, port).then(() => {
-    //   agent.get(`http://localhost:${port}/users/1`).then(res => {
-    //     agent
-    //       .put(`http://localhost:${port}/users/1`)
-    //       .send({
-    //         email: "customer@gmail.com",
-    //         password: "ibanez12",
-    //         address: "839 SW Broadway Drive APT 74",
-    //         fname: "Josh",
-    //         lname: "Still not a person",
-    //         phone: "5037105277",
-    //         businessName: "Oregon Historical Society",
-    //         role: "customer"
-    //       })
-    //       .catch(err => {
-    //         console.log(err);
-    //       })
-    //       .then(res => {
-    //         agent.get(`http://localhost:${port}/users/1`).then(res => {
-    //           expect(res.statusCode).toBe(200);
-    //           expect(res.body.lname).toEqual("Still not a person");
-    //         });
-    //       });
-    //   });
-    // });
     return createSession("admin@gmail.com", agent, port).then(async () => {
       let user = await agent.get(`http://localhost:${port}/users/1`);
       const response = await agent
