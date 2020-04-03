@@ -3,76 +3,81 @@ process.env.NODE_ENV = "test";
 const pool = require("../db");
 
 const request = require("supertest");
+const superagent = require("superagent");
 const app = require("../app");
 const { createUserTable, createJobTable } = require("../databaseCreation");
 const { sha512, saltHashPassword } = require("../util/Salt");
-const { createSession } = require("./test-helpers/create-session");
+const { createSession } = require("../data-helpers/create-session");
 
 var session = require("supertest-session");
 var testSession = null;
 
-let agent = request.agent(app);
+// let agent = request.agent(app);
 
-beforeAll(async () => {
-  //   await pool.connect();
-  await pool.query(createUserTable);
-  await pool.query(createJobTable);
-  const secret = saltHashPassword("password");
-  const userCustomer = await pool.query(
-    `INSERT INTO public.user 
+describe("users and sessions", () => {
+  let server;
+  const port = 4001;
+  const agent = superagent.agent();
+  beforeAll(done => {
+    server = app.listen(port, async () => {
+      // await pool.query("DROP TABLE public.user, public.job");
+      await pool.query(createUserTable);
+      await pool.query(createJobTable);
+      const secret = saltHashPassword("password");
+      const userCustomer = await pool.query(
+        `INSERT INTO public.user
         (email, address, fname, lname, phone, business_name, role, password_hash, password_salt) VALUES('customer@gmail.com', '159 SW Dartmouth St', 'Josh', 'Notperson', '555-555-5555', 'Oregon Historical Society', 'customer', $1, $2) RETURNING *`,
-    [secret.passwordHash, secret.salt]
-  );
-  // console.log(userCustomer.rows[0]);
-  const userOfficer = await pool.query(
-    `INSERT INTO public.user 
+        [secret.passwordHash, secret.salt]
+      );
+      // console.log(userCustomer.rows[0]);
+      const userOfficer = await pool.query(
+        `INSERT INTO public.user
         (email, address, fname, lname, phone, role, password_hash, password_salt) VALUES('officer@gmail.com', '123 NE Park ave', 'Josh', 'Person', '555-555-5555', 'officer', $1, $2) RETURNING *`,
-    [secret.passwordHash, secret.salt]
-  );
-  const userAdmin = await pool.query(
-    `INSERT INTO public.user 
+        [secret.passwordHash, secret.salt]
+      );
+      const userAdmin = await pool.query(
+        `INSERT INTO public.user
         (email, address, fname, lname, phone, role, password_hash, password_salt) VALUES('admin@gmail.com', '123 NE Park ave', 'Josh', 'Admin', '555-555-5555', 'admin', $1, $2) RETURNING *`,
-    [secret.passwordHash, secret.salt]
-  );
-  const userBusiness = await pool.query(
-    `INSERT INTO public.user 
+        [secret.passwordHash, secret.salt]
+      );
+      const userBusiness = await pool.query(
+        `INSERT INTO public.user
         (email, address, fname, lname, phone, role, password_hash, password_salt) VALUES('admin@gmail.com', '123 NE Park ave', 'Josh', 'business', '555-555-5555', 'business', $1, $2) RETURNING *`,
-    [secret.passwordHash, secret.salt]
-  );
-});
-
-beforeEach(async () => {
-  // const response = await createSession("admin@gmail.com");
-  // console.log(response);
-  // testSession = session(app);
-});
-
-afterEach(async () => {
-  // testSession.end();
-});
-
-afterAll(async () => {
-  await pool.query("DELETE FROM public.user");
-  await pool.query("DELETE FROM public.job");
-  await pool.query("DROP TABLE public.user, public.job");
-  pool.end();
-});
-
-describe("user routes", () => {
-  it("logs admin in", async () => {
-    let response = await request(app)
-      .post("/login")
-      .send({ email: "admin@gmail.com", password: "password" });
-    expect(response.statusCode).toBe(200);
+        [secret.passwordHash, secret.salt]
+      );
+      console.info(`HTTP server is listening on http://localhost:${port}`);
+      done();
+    });
   });
-  // it("logs admin in", async done => {
-  //   testSession
-  //     .post("/login")
-  //     .send({ email: "admin@gmail.com", password: "password" })
-  //     .expect(200)
-  //     .end(done);
+  afterAll(async done => {
+    await pool.query("DROP TABLE public.user, public.job");
+    server.close(done);
+    pool.end();
+  });
+  it("should return 401 status code, because you're not an admin", () => {
+    return agent.get(`http://localhost:${port}/users`).catch(err => {
+      expect(err.response.status).toEqual(401);
+    });
+  });
+  // it("Should login and return status code 200", () => {
+  //   createSession = async(adm);
   // });
 
+  it("should sign in with admin, return 200 status, and access /users route correctly as admin", () => {
+    return createSession("admin@gmail.com", agent, port)
+      .then(res => {
+        expect(res.status).toEqual(200);
+      })
+      .then(() => agent.get(`http://localhost:${port}/users`))
+      .then(res => {
+        expect(res.status).toEqual(200);
+        expect(res.body.length).toBe(4);
+        expect(res.body[0]).toHaveProperty("id");
+        expect(res.body[0]).toHaveProperty("role");
+        expect(res.statusCode).toBe(200);
+      });
+    // agent.end();
+  });
   it("creates a user", async () => {
     return request(app)
       .post("/register")
@@ -109,47 +114,64 @@ describe("user routes", () => {
         });
       });
   });
-  it("retrieves array of users", async () => {
-    // const login = await createSession("admin@gmail.com");
-    let login = await request(app)
-      .post("/login")
-      .send({ email: "admin@gmail.com", password: "password" });
-    expect(login.statusCode).toBe(200);
-    // let login = await request(app)
-    //   .post("/login")
-    //   .send({ email: "admin@gmail.com", password: "password" });
-    // expect(login.statusCode).toBe(200);
-    let response = await request(app).get("/users");
-    //   console.log(response);
-    // response = response;
-    expect(response.body.length).toBe(5);
-    expect(response.body[0]).toHaveProperty("id");
-    expect(response.body[0]).toHaveProperty("role");
-    expect(response.statusCode).toBe(200);
-  });
   it("gets one specific user", async () => {
-    let response = await request(app).get("/users/1");
-    expect(response.body).toHaveProperty("id");
-    expect(response.statusCode).toBe(200);
+    return createSession("admin@gmail.com", agent, port)
+      .then(res => {
+        expect(res.status).toEqual(200);
+      })
+      .then(() => {
+        agent.get(`http://localhost:${port}/users/1`).then(res => {
+          expect(res.body).toHaveProperty("id");
+          expect(res.statusCode).toBe(200);
+        });
+        // .then(res => {
+        //   agent.get("/logout");
+        // });
+      });
   });
   it("Updates specific user info", async () => {
-    let user = await request(app).get("/users/1");
-    const response = await request(app)
-      .put("/users/1")
-      .send({
-        email: "customer@gmail.com",
-        password: "ibanez12",
-        address: "839 SW Broadway Drive APT 74",
-        fname: "Josh",
-        lname: "Still not a person",
-        phone: "5037105277",
-        businessName: "Oregon Historical Society",
-        role: "customer"
-      });
-    user = await request(app).get("/users/1");
-    expect(response.statusCode).toBe(200);
-    // console.log(user);
-    expect(user.body.lname).toEqual("Still not a person");
+    // return createSession("admin@gmail.com", agent, port).then(() => {
+    //   agent.get(`http://localhost:${port}/users/1`).then(res => {
+    //     agent
+    //       .put(`http://localhost:${port}/users/1`)
+    //       .send({
+    //         email: "customer@gmail.com",
+    //         password: "ibanez12",
+    //         address: "839 SW Broadway Drive APT 74",
+    //         fname: "Josh",
+    //         lname: "Still not a person",
+    //         phone: "5037105277",
+    //         businessName: "Oregon Historical Society",
+    //         role: "customer"
+    //       })
+    //       .catch(err => {
+    //         console.log(err);
+    //       })
+    //       .then(res => {
+    //         agent.get(`http://localhost:${port}/users/1`).then(res => {
+    //           expect(res.statusCode).toBe(200);
+    //           expect(res.body.lname).toEqual("Still not a person");
+    //         });
+    //       });
+    //   });
+    // });
+    return createSession("admin@gmail.com", agent, port).then(async () => {
+      let user = await agent.get(`http://localhost:${port}/users/1`);
+      const response = await agent
+        .put(`http://localhost:${port}/users/1`)
+        .send({
+          email: "customer@gmail.com",
+          password: "ibanez12",
+          address: "839 SW Broadway Drive APT 74",
+          fname: "Josh",
+          lname: "Still not a person",
+          phone: "5037105277",
+          businessName: "Oregon Historical Society",
+          role: "customer"
+        });
+      user = await agent.get(`http://localhost:${port}/users/1`);
+      expect(response.statusCode).toBe(200);
+      expect(user.body.lname).toEqual("Still not a person");
+    });
   });
-  // it("deletes a specific")
 });
