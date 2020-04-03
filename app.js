@@ -43,9 +43,9 @@ const privateKey = fs.readFileSync("./private.pem", "utf8");
 /**USERS */
 /**CREATE*/ app.post("/register", registerUser);
 /**READ*/ app.get("/users", roleAuth(["admin"]), getAllUsers);
-/**READ*/ app.get("/users/:id", getUser);
+/**READ*/ app.get("/users/:id", roleAuth(["all"]), getUser);
 /**UPDATE*/ app.put("/users/:id", roleAuth(["all"]), updateUser);
-/**DELETE*/ app.delete("/users/:id", deleteUser);
+/**DELETE*/ app.delete("/users/:id", roleAuth(["all"]), deleteUser);
 
 /**SESSIONS */
 /**CREATE*/ app.post("/login", login);

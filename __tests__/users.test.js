@@ -15,6 +15,7 @@ var testSession = null;
 describe("users and sessions", () => {
   let server;
   const port = 4001;
+  const url = `http://localhost:${port}`;
   const agent = superagent.agent();
   beforeAll(done => {
     server = app.listen(port, async () => {
@@ -41,7 +42,12 @@ describe("users and sessions", () => {
         (email, address, fname, lname, phone, role, password_hash, password_salt) VALUES('admin@gmail.com', '123 NE Park ave', 'Josh', 'business', '555-555-5555', 'business', $1, $2) RETURNING *`,
         [secret.passwordHash, secret.salt]
       );
-      console.info(`HTTP server is listening on http://localhost:${port}`);
+      const userTest = await pool.query(
+        `INSERT INTO public.user
+        (email, address, fname, lname, phone, role, password_hash, password_salt) VALUES('test@gmail.com', '123 NE Park ave', 'Josh', 'test', '555-555-5555', 'business', $1, $2) RETURNING *`,
+        [secret.passwordHash, secret.salt]
+      );
+      console.info(`HTTP server is listening on ${url}`);
       done();
     });
   });
@@ -51,7 +57,7 @@ describe("users and sessions", () => {
     pool.end();
   });
   it("should return 401 status code, because you're not an admin", () => {
-    return agent.get(`http://localhost:${port}/users`).catch(err => {
+    return agent.get(`${url}/users`).catch(err => {
       expect(err.response.status).toEqual(401);
     });
   });
@@ -61,10 +67,10 @@ describe("users and sessions", () => {
       .then(res => {
         expect(res.status).toEqual(200);
       })
-      .then(() => agent.get(`http://localhost:${port}/users`))
+      .then(() => agent.get(`${url}/users`))
       .then(res => {
         expect(res.status).toEqual(200);
-        expect(res.body.length).toBe(4);
+        expect(res.body.length).toBe(5);
         expect(res.body[0]).toHaveProperty("id");
         expect(res.body[0]).toHaveProperty("role");
         expect(res.statusCode).toBe(200);
@@ -113,33 +119,36 @@ describe("users and sessions", () => {
         expect(res.status).toEqual(200);
       })
       .then(() => {
-        agent.get(`http://localhost:${port}/users/1`).then(res => {
+        agent.get(`${url}/users/1`).then(res => {
           expect(res.body).toHaveProperty("id");
           expect(res.statusCode).toBe(200);
         });
-        // .then(res => {
-        //   agent.get("/logout");
-        // });
       });
   });
   it("Updates specific user info", async () => {
     return createSession("admin@gmail.com", agent, port).then(async () => {
-      let user = await agent.get(`http://localhost:${port}/users/1`);
-      const response = await agent
-        .put(`http://localhost:${port}/users/1`)
-        .send({
-          email: "customer@gmail.com",
-          password: "ibanez12",
-          address: "839 SW Broadway Drive APT 74",
-          fname: "Josh",
-          lname: "Still not a person",
-          phone: "5037105277",
-          businessName: "Oregon Historical Society",
-          role: "customer"
-        });
-      user = await agent.get(`http://localhost:${port}/users/1`);
+      let user = await agent.get(`${url}/users/1`);
+      const response = await agent.put(`${url}/users/1`).send({
+        email: "customer@gmail.com",
+        password: "ibanez12",
+        address: "839 SW Broadway Drive APT 74",
+        fname: "Josh",
+        lname: "Still not a person",
+        phone: "5037105277",
+        businessName: "Oregon Historical Society",
+        role: "customer"
+      });
+      user = await agent.get(`${url}/users/1`);
       expect(response.statusCode).toBe(200);
       expect(user.body.lname).toEqual("Still not a person");
+    });
+  });
+  it("Deletes a user", () => {
+    return createSession("test@gmail.com", agent, port).then(async () => {
+      const user = await agent.get(`${url}/users/5`);
+      expect(user.body).toHaveProperty("id");
+      const response = await agent.delete(`${url}/users/5`);
+      expect(response.body.message).toEqual("User Deleted");
     });
   });
 });

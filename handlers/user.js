@@ -83,8 +83,16 @@ exports.updateUser = async (req, res) => {
 };
 exports.deleteUser = async (req, res) => {
   const { id } = req.params;
-  const deleteUser = await pool.query("DELETE FROM public.user WHERE id = $1", [
-    id
-  ]);
-  res.json({ message: "User Deleted" });
+  const currentUser = req.session.userData;
+  if (currentUser.id == id || currentUser.role == "admin") {
+    const deleteUser = await pool.query(
+      "DELETE FROM public.user WHERE id = $1",
+      [id]
+    );
+    res.json({ message: "User Deleted" });
+  } else {
+    res
+      .status(401)
+      .json({ error: "You can't delete an account you don't own" });
+  }
 };
