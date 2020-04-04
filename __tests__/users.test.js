@@ -75,7 +75,6 @@ describe("users and sessions", () => {
         expect(res.body[0]).toHaveProperty("role");
         expect(res.statusCode).toBe(200);
       });
-    // agent.end();
   });
   it("creates a user", async () => {
     return request(app)
