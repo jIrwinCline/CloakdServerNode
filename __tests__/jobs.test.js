@@ -44,7 +44,7 @@ describe("Full crud functionality for jobs", () => {
       );
       const userBusiness = await pool.query(
         `INSERT INTO public.user
-        (email, address, fname, lname, phone, role, password_hash, password_salt) VALUES('admin@gmail.com', '123 NE Park ave', 'Josh', 'business', '555-555-5555', 'business', $1, $2) RETURNING *`,
+        (email, address, fname, lname, phone, role, password_hash, password_salt) VALUES('business@gmail.com', '123 NE Park ave', 'Josh', 'business', '555-555-5555', 'business', $1, $2) RETURNING *`,
         [secret.passwordHash, secret.salt]
       );
       const userTest = await pool.query(
@@ -132,8 +132,13 @@ describe("Full crud functionality for jobs", () => {
       try {
         const response = await agent.patch(`${url}/jobs/1/fill`);
         expect(response.statusCode).toEqual(200);
+        const job = await agent.get(`${url}/jobs/1`);
+        expect(job.body).toEqual(
+          expect.objectContaining({ officer_id: 3, id: 1 })
+        );
       } catch (err) {
         console.log(err);
+        expect(err).toBeFalsy();
       }
     });
   });
