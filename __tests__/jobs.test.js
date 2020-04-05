@@ -116,7 +116,30 @@ describe("Full crud functionality for jobs", () => {
       }
     });
   });
-  it("should deny access to delete a job as a customer who did not post it", () => {
+  it("should update a job by the user that created it", () => {
+    return createSession("customer1@gmail.com", agent, port).then(async () => {
+      try {
+        const response = await agent.put(`${url}/jobs/1/update`).send({
+          contactFName: "George",
+          contactLName: "Washington",
+          contactPhone: "1234567890",
+          description: "Protect the President",
+          duties: "safety of the president",
+          location: "123 Presidential st",
+          startDate: new Date("April 30 2020 12:30"),
+          endDate: new Date("April 30 2020 18:30")
+        });
+        expect(response.statusCode).toEqual(200);
+        expect(response.body.message).toEqual("Job Updated");
+        const job = await agent.get(`${url}/jobs/1`);
+        expect(job.body.contact_fname).toEqual("George");
+      } catch (err) {
+        console.log(err);
+        expect(err).toBeFalsy();
+      }
+    });
+  });
+  it("should deny access to update and delete a job as a customer who did not post it", () => {
     return createSession("customer2@gmail.com", agent, port).then(async () => {
       try {
         const response = await agent.delete(`${url}/jobs/1`);
