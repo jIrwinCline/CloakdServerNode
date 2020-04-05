@@ -111,13 +111,21 @@ describe("Full crud functionality for jobs", () => {
     return createSession("officer@gmail.com", agent, port).then(async () => {
       try {
         const response = await agent.patch(`${url}/jobs/1/fill`);
-        console.log(response);
+        // console.log(response);
         expect(response.statusCode).toEqual(200);
       } catch (err) {
         console.log(err);
       }
     });
   });
-  //   it("should deny access to delete a job as a customer who did not post it", () => {});
+  it("should deny access to delete a job as a customer who did not post it", () => {
+    return createSession("customer2@gmail.com", agent, port).then(async () => {
+      try {
+        const response = await agent.delete(`${url}/jobs/1`);
+      } catch (err) {
+        expect(err.response.status).toEqual(401);
+      }
+    });
+  });
   //   it("should delete a job as a customer who posted it", () => {});
 });

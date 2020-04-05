@@ -144,7 +144,7 @@ exports.deleteJob = async (req, res) => {
       );
       res.json({ message: "Job Deleted" });
     } else {
-      res.json({ error: "Unauthorized by poster ID" });
+      res.status(401).json({ error: "Unauthorized by poster ID" });
     }
   } catch (err) {
     console.log(err);
