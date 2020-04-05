@@ -52,7 +52,9 @@ exports.getJob = async (req, res) => {
     const job = await pool.query("SELECT * FROM public.job WHERE id = $1", [
       id
     ]);
-    res.json(job.rows[0]);
+    job.rows[0]
+      ? res.json(job.rows[0])
+      : res.status(404).json({ error: "Job Not Found, Was It Deleted?" });
   } catch (error) {
     console.log(error);
   }

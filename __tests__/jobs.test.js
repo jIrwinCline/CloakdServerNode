@@ -127,5 +127,16 @@ describe("Full crud functionality for jobs", () => {
       }
     });
   });
-  //   it("should delete a job as a customer who posted it", () => {});
+  it("should delete a job as a customer who posted it", () => {
+    return createSession("customer1@gmail.com", agent, port).then(async () => {
+      try {
+        const response = await agent.delete(`${url}/jobs/1`);
+        expect(response.statusCode).toEqual(200);
+        const job = await agent.get(`${url}/jobs/1`);
+        // expect(job).toBe(false);
+      } catch (err) {
+        expect(err.response.status).toEqual(404);
+      }
+    });
+  });
 });
