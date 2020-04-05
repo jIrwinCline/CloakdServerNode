@@ -33,6 +33,7 @@ exports.createJob = async (req, res) => {
     res.json(job.rows[0]);
   } catch (err) {
     console.log(err);
+    res.status(500).json(err);
   }
 };
 
@@ -40,7 +41,7 @@ exports.getAllJobs = async (req, res) => {
   try {
     const jobs = await pool.query("SELECT * FROM public.job");
     if (jobs.rows[0]) res.json(jobs.rows);
-    else res.json({ message: "Sorry, no jobs" });
+    else res.status(404).json({ error: "Sorry, no jobs" });
   } catch (err) {
     console.log(err);
   }
@@ -52,7 +53,9 @@ exports.getJob = async (req, res) => {
     const job = await pool.query("SELECT * FROM public.job WHERE id = $1", [
       id
     ]);
-    res.json(job.rows[0]);
+    job.rows[0]
+      ? res.json(job.rows[0])
+      : res.status(404).json({ error: "Job Not Found, Was It Deleted?" });
   } catch (error) {
     console.log(error);
   }
@@ -65,7 +68,8 @@ exports.updateJob = async (req, res) => {
     const job = await pool.query("SELECT * FROM public.job WHERE id = $1", [
       id
     ]);
-    if (!job.rows[0].customer_id) res.json({ error: "No Job With The ID" });
+    if (!job.rows[0].customer_id)
+      return res.status(404).json({ error: "No Job With The ID" });
     //allows customer that creted job, or any admin
     if (
       currentUser.id == job.rows[0].customer_id ||
@@ -97,7 +101,7 @@ exports.updateJob = async (req, res) => {
       );
       res.json({ message: "Job Updated" });
     } else {
-      res.json({ error: "Unauthorized by poster ID" });
+      res.status(401).json({ error: "Unauthorized by poster ID" });
     }
   } catch (err) {
     console.error(err);
@@ -143,7 +147,7 @@ exports.deleteJob = async (req, res) => {
       );
       res.json({ message: "Job Deleted" });
     } else {
-      res.json({ error: "Unauthorized by poster ID" });
+      res.status(401).json({ error: "Unauthorized by poster ID" });
     }
   } catch (err) {
     console.log(err);
