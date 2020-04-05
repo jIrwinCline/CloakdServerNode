@@ -62,7 +62,7 @@ describe("Full crud functionality for jobs", () => {
     pool.end();
   });
   /////////////////begin tests//////////////////////////
-  it("should return unauthorized when trying to create a job while not signed in and you are signed in as a officer", async () => {
+  it("should return unauthorized when trying to create a job while not signed in and same when you are signed in as a officer", async () => {
     try {
       await agent.post(`${url}/jobs/post`).send({
         randomStuff: "Should be real job info"
@@ -102,9 +102,30 @@ describe("Full crud functionality for jobs", () => {
       expect(response.statusCode).toEqual(200);
     });
   });
+  it("should Get all jobs", async () => {
+    const response = await agent.get(`${url}/jobs`);
+    expect(response.statusCode).toEqual(200);
+    expect(response.body.length).toBe(1);
+  });
   it("should get the made job", async () => {
     const response = await agent.get(`${url}/jobs/1`);
     expect(response.statusCode).toEqual(200);
+    expect(response.body).toEqual({
+      id: expect.any(Number),
+      contact_fname: "Harry",
+      contact_lname: "Truman",
+      contact_phone: "1234567890",
+      description: "Protect the President",
+      duties: "safety of the president",
+      location: "123 Presidential st",
+      start_date: "2020-04-30T19:30:00.000Z",
+      end_date: "2020-05-01T01:30:00.000Z",
+      is_completed: "false",
+      officer_id: null,
+      business_id: null,
+      customer_id: expect.any(Number),
+      created_on: expect.any(String)
+    });
   });
   it("should fill a job as an officer", () => {
     return createSession("officer@gmail.com", agent, port).then(async () => {
