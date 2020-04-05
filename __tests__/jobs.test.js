@@ -22,9 +22,14 @@ describe("Full crud functionality for jobs", () => {
       await pool.query(createUserTable);
       await pool.query(createJobTable);
       const secret = saltHashPassword("password");
-      const userCustomer = await pool.query(
+      const userCustomer1 = await pool.query(
         `INSERT INTO public.user
-        (email, address, fname, lname, phone, business_name, role, password_hash, password_salt) VALUES('customer@gmail.com', '159 SW Dartmouth St', 'Josh', 'Notperson', '555-555-5555', 'Oregon Historical Society', 'customer', $1, $2) RETURNING *`,
+        (email, address, fname, lname, phone, business_name, role, password_hash, password_salt) VALUES('customer1@gmail.com', '159 SW Dartmouth St', 'Josh', 'Notperson', '555-555-5555', 'Oregon Historical Society', 'customer', $1, $2) RETURNING *`,
+        [secret.passwordHash, secret.salt]
+      );
+      const userCustomer2 = await pool.query(
+        `INSERT INTO public.user
+        (email, address, fname, lname, phone, business_name, role, password_hash, password_salt) VALUES('customer2@gmail.com', '159 SW Dartmouth St', 'Josh', 'Notperson', '555-555-5555', 'Oregon Historical Society', 'customer', $1, $2) RETURNING *`,
         [secret.passwordHash, secret.salt]
       );
       const userOfficer = await pool.query(
@@ -56,4 +61,48 @@ describe("Full crud functionality for jobs", () => {
     server.close(done);
     pool.end();
   });
+  /////////////////begin tests//////////////////////////
+  it("should return unauthorized when trying to create a job while not signed in and you are signed in as a officer", async () => {
+    try {
+      await agent.post(`${url}/jobs/post`).send({
+        randomStuff: "Should be real job info"
+      });
+    } catch (err) {
+      expect(err.response.status).toEqual(401);
+    }
+    return createSession("officer@gmail.com", agent, port).then(async () => {
+      try {
+        await agent.post(`${url}/jobs/post`).send({
+          contactFName: "Harry",
+          contactLName: "Truman",
+          contactPhone: "1234567890",
+          description: "Protect the President",
+          duties: "safety of the president",
+          location: "123 Presidential st",
+          startDate: "4/5/2020 3:30pm",
+          endDate: "4/5/2020 10:30pm"
+        });
+      } catch (err) {
+        expect(err.response.status).toEqual(401);
+      }
+    });
+  });
+  it("Should create a job as a customer", () => {
+    return createSession("customer1@gmail.com", agent, port).then(async () => {
+      const response = await agent.post(`${url}/jobs/post`).send({
+        contactFName: "Harry",
+        contactLName: "Truman",
+        contactPhone: "1234567890",
+        description: "Protect the President",
+        duties: "safety of the president",
+        location: "123 Presidential st",
+        startDate: new Date("April 30 2020 12:30"),
+        endDate: new Date("April 30 2020 18:30")
+      });
+      expect(response.statusCode).toEqual(200);
+    });
+  });
+  //   it("should fill a job as an officer", () => {});
+  //   it("should deny access to delete a job as a customer who did not post it", () => {});
+  //   it("should delete a job as a customer who posted it", () => {});
 });

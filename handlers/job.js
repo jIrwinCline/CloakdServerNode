@@ -65,7 +65,8 @@ exports.updateJob = async (req, res) => {
     const job = await pool.query("SELECT * FROM public.job WHERE id = $1", [
       id
     ]);
-    if (!job.rows[0].customer_id) res.json({ error: "No Job With The ID" });
+    if (!job.rows[0].customer_id)
+      return res.json({ error: "No Job With The ID" });
     //allows customer that creted job, or any admin
     if (
       currentUser.id == job.rows[0].customer_id ||
