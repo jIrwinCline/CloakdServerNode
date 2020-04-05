@@ -102,7 +102,22 @@ describe("Full crud functionality for jobs", () => {
       expect(response.statusCode).toEqual(200);
     });
   });
-  //   it("should fill a job as an officer", () => {});
+  it("should get the made job", async () => {
+    const response = await agent.get(`${url}/jobs/1`);
+    // console.log(response.body);
+    expect(response.statusCode).toEqual(200);
+  });
+  it("should fill a job as an officer", () => {
+    return createSession("officer@gmail.com", agent, port).then(async () => {
+      try {
+        const response = await agent.patch(`${url}/jobs/1/fill`);
+        console.log(response);
+        expect(response.statusCode).toEqual(200);
+      } catch (err) {
+        console.log(err);
+      }
+    });
+  });
   //   it("should deny access to delete a job as a customer who did not post it", () => {});
   //   it("should delete a job as a customer who posted it", () => {});
 });
