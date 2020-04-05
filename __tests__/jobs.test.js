@@ -104,14 +104,12 @@ describe("Full crud functionality for jobs", () => {
   });
   it("should get the made job", async () => {
     const response = await agent.get(`${url}/jobs/1`);
-    // console.log(response.body);
     expect(response.statusCode).toEqual(200);
   });
   it("should fill a job as an officer", () => {
     return createSession("officer@gmail.com", agent, port).then(async () => {
       try {
         const response = await agent.patch(`${url}/jobs/1/fill`);
-        // console.log(response);
         expect(response.statusCode).toEqual(200);
       } catch (err) {
         console.log(err);
@@ -133,7 +131,6 @@ describe("Full crud functionality for jobs", () => {
         const response = await agent.delete(`${url}/jobs/1`);
         expect(response.statusCode).toEqual(200);
         const job = await agent.get(`${url}/jobs/1`);
-        // expect(job).toBe(false);
       } catch (err) {
         expect(err.response.status).toEqual(404);
       }
