@@ -8,7 +8,7 @@
 
 ## Introduction
 
-_Cloakd is a early state Security Guard dispatching company that worked to protect you local events and private property in a proavtive manner. This is the backend Server portion of the full stack application where clients can make REST calls to signup, add jobs, and then recieve dispatched security officers to their location._
+_Cloakd is an early stage Security Guard dispatching company that works to protect your local events and private property in a proavtive manner. This is the backend Server portion of the full stack application where clients can make REST calls to signup, add jobs, and then recieve dispatched security officers to their location._
 
 ## Technologies
 
