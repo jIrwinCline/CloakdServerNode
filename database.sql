@@ -1,3 +1,5 @@
+-- PAGE OUTDATED. REFER TO databaseCreation.js
+
 CREATE DATABASE CloakdDb;
 
 CREATE TABLE public.user(

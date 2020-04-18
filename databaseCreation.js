@@ -43,6 +43,7 @@ exports.createUserTable = `CREATE TABLE public."user"
     address character varying(100) COLLATE pg_catalog."default" NOT NULL,
     email character varying(50) COLLATE pg_catalog."default" NOT NULL,
     password_salt character varying(50) COLLATE pg_catalog."default" NOT NULL,
+    password_hash character varying COLLATE pg_catalog."default",
     fname character varying(50) COLLATE pg_catalog."default" NOT NULL,
     lname character varying(50) COLLATE pg_catalog."default" NOT NULL,
     phone character varying(50) COLLATE pg_catalog."default" NOT NULL,
@@ -54,7 +55,6 @@ exports.createUserTable = `CREATE TABLE public."user"
     business_id integer,
     business_name character varying(50) COLLATE pg_catalog."default",
     county character varying(50) COLLATE pg_catalog."default",
-    password_hash character varying COLLATE pg_catalog."default",
     CONSTRAINT user_pkey PRIMARY KEY (id)
 
 )
